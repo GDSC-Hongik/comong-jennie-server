@@ -89,9 +89,9 @@ WSGI_APPLICATION = 'comong_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'comongdb',
-        'USER': 'hosung',
-        'PASSWORD': '8669',
+        'NAME': 'comong_project',
+        'USER': 'jennie',
+        'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }
