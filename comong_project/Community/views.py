@@ -20,7 +20,6 @@ from .serializers import PostdetailSerializer , BoardSerializer , Subserializer 
 #     return Response(serializer.data, status=200)
 
 
-    
 # @api_view(['GET'])
 # def post_deatil(request,pk):
 #     posts_detail=Post.objects.get(id=pk)
@@ -32,8 +31,7 @@ class post(ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostdetailSerializer
     
-    
-# post_list에서는 제목,작성자(+프로필),시간,태그만 보이도록(content 제외) 세부 기능 구현
+# post_list에서는 제목,작성자(+프로필),시간,태그만 보이도록(content 제외) 세부 기능 구현+해당 게시판에 맞는 게시물만 보이도록
 # ModelViewset 조금 더 공부 필요
 
 @api_view(['GET', 'POST'])
@@ -65,5 +63,6 @@ def prof_list(request,grade,sub):
         return Response(serializer.data, status= status.HTTP_200_OK)
      
     elif request.method =='POST':
-        return HttpResponseRedirect(reverse('Community:main_view', kwargs={'grade': grade , 'sub' : sub , 'prof': request.data }))
+        board=Board.objects.get(grade=grade,sub=sub,profs=request.data)
+        return HttpResponseRedirect(reverse('Community:main_board', kwargs={'grade': grade , 'sub' : sub, 'prof':request.data}))
                                             ##여기서 mainview를 찾지 못 함

@@ -6,13 +6,13 @@ from .views import post ,grade_list , sub_list , prof_list
 app_name = "Community"
 
 router = DefaultRouter()
-router.register('<int:grade>/<str:sub>/<str:prof>', post, basename="main_view")  
+router.register('', post)  
 
 # router url 종류 파악 필요
 
 urlpatterns = [
-    # path('', )/
-    path('<int:grade>/<str:sub>/<str:prof>', include(router.urls), name = 'main_view'),
+    # path('', )
+    path('<int:grade>/<str:sub>/<str:prof>/', include(router.urls),name='mainboard'),
     path('', grade_list ,name = 'get_grade'),
     path('<int:grade>/', sub_list, name ='get_sub'),
     path('<int:grade>/<str:sub>/', prof_list, name = 'get_prof'),
