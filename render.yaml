@@ -1,8 +1,8 @@
-databases:
-  - name: comongdb
-    plan: free
-    databaseName: comong
-    user: comong
+# databases:
+#   - name: comongdb
+#     plan: free
+#     databaseName: comong
+#     user: comong
 
 services:
   - type: web
