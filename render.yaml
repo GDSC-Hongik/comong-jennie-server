@@ -21,14 +21,14 @@
 #       - key: WEB_CONCURRENCY
 #         value: 4
 
-services:
-  - type: web
-    name: my-django-api
-    env: python
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn myproject.wsgi"
-    envVars:
-      - key: SECRET_KEY
-        sync: false
-      - key: DATABASE_URL
-        sync: false
+# services:
+#   - type: web
+#     name: my-django-api
+#     env: python
+#     buildCommand: "./build.sh"
+#     startCommand: "gunicorn myproject.wsgi"
+#     envVars:
+#       - key: SECRET_KEY
+#         sync: false
+#       - key: DATABASE_URL
+#         sync: false
