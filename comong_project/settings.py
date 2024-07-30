@@ -26,7 +26,7 @@ SECRET_KEY = '8ppqo!_58dymp&&w#g*xegy7pq!i31#zp22fo+dk2=2j2rp3h6'
 DEBUG = True
 
 ALLOWED_HOSTS = ['comong-jennie-server.onrender.com']
-
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -46,11 +46,15 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'corsheaders',
+
+    
 ]
 
 SITE_ID = 1 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
