@@ -86,28 +86,28 @@ WSGI_APPLICATION = 'comong_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'comong_project',
-        'USER': 'jennie',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'comong_project',
+#         'USER': 'jennie',
+#         'PASSWORD': '1234',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 # # Replace this value with your local database's connection string.
 #         default='postgresql://postgres:postgres@localhost:5432/comong_project',
 #         conn_max_age=600
 
-# Replace the SQLite DATABASES configuration with PostgreSQL:
-# DATABASES = {
+#Replace the SQLite DATABASES configuration with PostgreSQL:
+DATABASES = {
     
-#     'default': dj_database_url.config (
-#         default='postgresql://hosung:nnaro9iGbquZ0LPsizwfRmB3quGIKS3D@dpg-cqjqhsaj1k6c73a1uc4g-a.singapore-postgres.render.com/comong',
-#         conn_max_age=600
-#     )
-# }
+    'default': dj_database_url.config (
+        default='postgresql://hosung:nnaro9iGbquZ0LPsizwfRmB3quGIKS3D@dpg-cqjqhsaj1k6c73a1uc4g-a.singapore-postgres.render.com/comong',
+        conn_max_age=600
+    )
+}
 
 
 # Password validation
