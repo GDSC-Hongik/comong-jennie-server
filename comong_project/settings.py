@@ -25,7 +25,7 @@ SECRET_KEY = '8ppqo!_58dymp&&w#g*xegy7pq!i31#zp22fo+dk2=2j2rp3h6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['comong-jennie-server.onrender.com']
+ALLOWED_HOSTS = ['comong-jennie-server.onrender.com','127.0.0.1']
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition

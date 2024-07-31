@@ -25,7 +25,7 @@ class Post(models.Model):
     tag = models.ManyToManyField(HashTag,blank=True)
     dt_created = models.DateTimeField(verbose_name="Date Created",auto_now_add=True)
     dt_modified = models.DateTimeField(verbose_name="Date Modified",auto_now=True)
-    # board = models.OneToOneField(Board )
+    board_pk = models.IntegerField(null=True)
     
     def __str__(self):
         return self.title
