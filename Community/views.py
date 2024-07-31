@@ -9,8 +9,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from django.http import HttpResponseRedirect , JsonResponse
 from django.urls import reverse
-from .models import Post , Board
-from .serializers import PostdetailSerializer ,PostlistSerializer ,BoardSerializer , Subserializer , Profserializer
+from .models import Post 
+from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer
 
 ## 코드 전반적으로 오류처리에 대한 부분 필요
 
@@ -20,22 +20,22 @@ from .serializers import PostdetailSerializer ,PostlistSerializer ,BoardSerializ
 """
 
 """
-class post_list(APIView):
-    def get(self,request,board_pk):
-        board = Board.objects.get(id = board_pk)
-        posts = Post.objects.filter(board_pk=board_pk)
-        serializer = PostlistSerializer(posts,many=True)
-        return Response({'board name':str(board) ,'data':serializer.data})
+# class post_list(APIView):
+#     def get(self,request,board_pk):
+#         board = Board.objects.get(id = board_pk)
+#         posts = Post.objects.filter(board_pk=board_pk)
+#         serializer = PostlistSerializer(posts,many=True)
+#         return Response({'board name':str(board) ,'data':serializer.data})
     
-    def post(self,request,board_pk):
-        data = request.data
-        data ['board_pk'] = board_pk
-        serializer = PostdetailSerializer(data=data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            # return Response(serializer.data,status=status.HTTP_201_CREATED)
-            return HttpResponseRedirect(reverse('Community:post-list', kwargs={'board_pk': board_pk } ))
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+#     def post(self,request,board_pk):
+#         data = request.data
+#         data ['board_pk'] = board_pk
+#         serializer = PostdetailSerializer(data=data)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             # return Response(serializer.data,status=status.HTTP_201_CREATED)
+#             return HttpResponseRedirect(reverse('Community:post-list', kwargs={'board_pk': board_pk } ))
+#         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -46,65 +46,48 @@ class post_list(APIView):
 #     serializer = PostdetailSerializer(post)
 #     return Response(serializer.data)
 
-class post_deatil(APIView): 
-    def get_object(self,board_pk,post_pk):
-        post = get_object_or_404(Post,board_pk=board_pk,id=post_pk)
+class post_detail(APIView): 
+    def get_object(self,grade,sub,profs,post_pk):
+        post = get_object_or_404(Post, id=post_pk)
         return post
 
-    def get(self,request,board_pk,post_pk):
-        post = self.get_object(board_pk,post_pk)
+    def get(self,request,grade,sub,profs,post_pk):
+        post = self.get_object(post_pk)
         serializer = PostdetailSerializer(post)
         return Response(serializer.data)
     
-    def patch(self,request,board_pk,post_pk):
-        post = self.get_object(board_pk,post_pk)
+    def patch(self,request,grade,sub,profs,post_pk):
+        post = self.get_object(post_pk)
         serializer = PostdetailSerializer(post,data=request.data,partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)    
     
-    def delete(self,request,board_pk,post_pk):
-        post = self.get_object(board_pk,post_pk)
-        url = reverse('Community:post-list', kwargs={'board_pk': board_pk })
+    def delete(self,request,grade,sub,profs,post_pk):
+        post = self.get_object(post_pk)
         post.delete()
-        # return Response(status=status.HTTP_204_NO_CONTENT)
-        # return HttpResponseRedirect(url)
-        return Response({'url': str(url) }, status=status.HTTP_204_NO_CONTENT) ###여기서 url이 전달되는지 프론트와 확인 필요
-
-# post_list에서는 제목,작성자(+프로필),시간,태그만 보이도록(content 제외) 세부 기능 구현+해당 게시판에 맞는 게시물만 보이도록
-# ModelViewset 조금 더 공부 필요
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET', 'POST'])
-def grade_list(request):
+@api_view(['GET']) 
+def grade_post(request,grade):
     if request.method == 'GET' :
-        board = Board.objects.values('grade').order_by('grade').distinct()    
-        serializer = BoardSerializer(board, many = True)
+        posts = Post.objects.filter(grade = grade).order_by('dt_created')
+        serializer = GradePostlistSerializer(posts, many = True)
         return Response(serializer.data, status= status.HTTP_200_OK)
     
-    elif request.method =='POST':
-        return HttpResponseRedirect(reverse('Community:get_sub', kwargs={'grade' : request.data}))
-
-
-@api_view(['GET', 'POST']) 
-def sub_list(request,grade):
+@api_view(['GET']) 
+def sub_post(request,grade,sub):
     if request.method == 'GET' :
-        board = Board.objects.filter(grade = grade).values('sub').order_by('sub').distinct()
-        serializer = Subserializer(board, many = True)
-        return Response(serializer.data, status= status.HTTP_200_OK)
-    
-    elif request.method =='POST':
-        return HttpResponseRedirect(reverse('Community:get_prof', kwargs={'grade': grade , 'sub' : request.data}))
-    
-
-@api_view(['GET', 'POST']) 
-def prof_list(request,grade,sub):
-    if request.method == 'GET' :
-        board = Board.objects.filter(sub=sub).order_by('profs')
-        serializer = Profserializer(board, many = True)
+        board = Post.objects.filter(grade = grade, sub=sub).order_by('dt_created')
+        serializer = SubPostlistSerializer(board, many = True)
         return Response(serializer.data, status= status.HTTP_200_OK)
      
-    elif request.method =='POST':
-        board=Board.objects.get(grade=grade,sub=sub,profs=request.data)
-        return HttpResponseRedirect(reverse('Community:post-list', kwargs={'board_pk':board.id}))
+
+@api_view(['GET']) 
+def prof_post(request,grade,sub,profs):
+    if request.method == 'GET' :
+        board = Post.objects.filter(grade = grade, sub=sub, profs = profs).order_by('dt_created')
+        serializer = ProfsPostlistSerializer(board, many = True)
+        return Response(serializer.data, status= status.HTTP_200_OK)
