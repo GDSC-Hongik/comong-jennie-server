@@ -1,3 +1,4 @@
+'''
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
@@ -19,4 +20,13 @@ urlpatterns = [
     
     # DRF 라우터 URL
     path('api/', include(router.urls)),
+]
+'''
+from django.urls import path, include
+from .views import RegistrationAPIview,LoginAPIview,UserRetrieveUpdateAPIview
+
+urlpatterns = [
+    path('register/',RegistrationAPIview.as_view(),name="register"),
+    path('login/',LoginAPIview.as_view(),name="login"),
+    path('current/',UserRetrieveUpdateAPIview.as_view(),name="profile"),
 ]
