@@ -22,11 +22,12 @@ urlpatterns = [
     path('api/', include(router.urls)),
 ]
 '''
-from django.urls import path, include
-from .views import RegistrationAPIview,LoginAPIview,UserRetrieveUpdateAPIview
+from django.urls import path
+from .views import RegistrationAPIview,LoginAPIview,UserRetrieveUpdateAPIview,resume_list
 
 urlpatterns = [
     path('register/',RegistrationAPIview.as_view(),name="register"),
     path('login/',LoginAPIview.as_view(),name="login"),
     path('current/',UserRetrieveUpdateAPIview.as_view(),name="profile"),
+    path('<int:pk>/resumes',resume_list,name="resume"),
 ]

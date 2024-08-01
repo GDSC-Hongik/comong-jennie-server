@@ -69,9 +69,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
 
-from .serializers import RegistrationSerializer,LoginSerializer,UserSerializer
+from .serializers import RegistrationSerializer,LoginSerializer,UserSerializer,ResumeSerializer
 from .renderers import UserJSONRenderer
+
+from .models import User,Resume
 
 # 회원가입
 class RegistrationAPIview(APIView):
@@ -88,8 +92,8 @@ class RegistrationAPIview(APIView):
         
         return Response({
             'user': serializer.data,
-            'message': '회원가입이 완료되었습니다.',
-            'next': "login"  # 회원가입 후 로그인 페이지로 이동
+            #'message': '회원가입이 완료되었습니다.',
+            #'next': "login"  # 회원가입 후 로그인 페이지로 이동
         }, status=status.HTTP_201_CREATED)
 
 # 로그인
@@ -106,8 +110,8 @@ class LoginAPIview(APIView):
            
         return Response({
             'user': serializer.data,
-            'message': '로그인이 완료되었습니다.',
-            'next': "profile"  # 로그인 후 프로필 수정 페이지로 이동
+            #'message': '로그인이 완료되었습니다.',
+            #'next': "profile"  # 로그인 후 프로필 수정 페이지로 이동
         }, status=status.HTTP_200_OK)
 
 # 프로필 수정
@@ -132,8 +136,49 @@ class UserRetrieveUpdateAPIview(RetrieveUpdateAPIView):
         
         return Response({
             'user': serializer.data,
-            'message': '프로필 수정이 완료되었습니다.',
-            'next': "home"  # 프로필 수정 후 로그인 페이지로 이동
+            #'message': '프로필 수정이 완료되었습니다.',
+            #'next': "home"  # 프로필 수정 후 로그인 페이지로 이동
         }, status=status.HTTP_200_OK)
         
+# 이력서
+@api_view(['GET', 'POST','PATCH','DELETE'])
+def resume_list(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    if request.method == 'GET':
+        resumes = Resume.objects.filter(user=user)
+        serializer = ResumeSerializer(resumes, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        serializer = ResumeSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'PATCH':
+        # 이력서 ID를 URL에서 가져옴
+        resume_id = request.data.get('resume_id')  # 요청 데이터에서 resume_id를 가져옴
+        resume = get_object_or_404(Resume, id=resume_id, user=user)
+
+        serializer = ResumeSerializer(resume, data=request.data, partial=True)  # partial=True로 부분 업데이트 허용
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        # 이력서 ID를 URL에서 가져옴
+        resume_id = request.data.get('resume_id')  #  요청 데이터에서 resume_id를 가져옴
+        resume = get_object_or_404(Resume, id=resume_id, user=user)
+
+        resume.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 

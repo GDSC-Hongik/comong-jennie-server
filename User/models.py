@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
     
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
-    phone_number = models.CharField(max_length=255)
+    # phone_number = models.CharField(max_length=255)
     is_active = BooleanField(default=True)
     is_staff = BooleanField(default=False)
     
@@ -81,7 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
     
     REQUIRED_FIELDS = [
         'username',
-        'phone_number'
+        # 'phone_number'
     ]
     
     objects = UserManager()
@@ -108,3 +108,12 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token
+    
+class Resume(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    project = models.TextField()
+    contest = models.TextField()
+    etc = models.TextField()
+    link = models.URLField()
+    skill =models.TextField()
+    appeal = models.TextField()
