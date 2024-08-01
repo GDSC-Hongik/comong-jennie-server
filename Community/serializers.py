@@ -14,17 +14,17 @@ class PostdetailSerializer(serializers.ModelSerializer):
 class GradePostlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['title','id','sub','profs']
+        fields = ['title','id','sub','profs','dt_created']
         
 class SubPostlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['title','id','profs']
+        fields = ['title','id','profs','dt_created']
         
 class ProfsPostlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['title','id',]
+        fields = ['title','id','dt_created']
         
 # class BoardSerializer(serializers.ModelSerializer):
 #     class Meta:
