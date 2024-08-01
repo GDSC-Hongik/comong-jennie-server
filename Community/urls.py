@@ -21,5 +21,5 @@ urlpatterns = [
     path('major/<int:grade>/<str:sub>/',sub_post, name = 'sub-post'),
     path('major/<int:grade>/<str:sub>/<str:profs>',prof_post,name = 'prof-post'),
     path('major/<int:grade>/<str:sub>/<str:profs>/<int:post_pk>',post_detail.as_view(),name = 'post-detail')
-    # path('major/<int:grade>/<str:sub>/<str:profs>/<int:post_pk>/create',post_detail.as_view(),name = 'post-create')
+    # path('major/<int:grade>/<str:sub>/<str:profs>/create',post_detail.as_view(),name = 'post-create')
 ]
