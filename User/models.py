@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
     
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
-    phonenumber = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=255)
     is_active = BooleanField(default=True)
     is_staff = BooleanField(default=False)
     
@@ -87,7 +87,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
     objects = UserManager()
     
     def __str__(self):
-        return self.nickname
+        return self.email
     
     def get_full_name(self):
         return self.username
