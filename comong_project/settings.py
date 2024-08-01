@@ -25,7 +25,7 @@ SECRET_KEY = '8ppqo!_58dymp&&w#g*xegy7pq!i31#zp22fo+dk2=2j2rp3h6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['comong-jennie-server.onrender.com','127.0.0.1']
+ALLOWED_HOSTS = ['comong-jennie-server.onrender.com','127.0.0.1','localhost', 'localhost:8000'] # 수정해야될수도
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
@@ -62,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'User.middleware.ProfileSetupMiddleware',
+    # 'User.middleware.ProfileSetupMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
@@ -161,6 +161,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "User.User"
 
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER':'User.exceptions.core_exception_handler',
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_AUTHENTICATION_CLASSES':(
+        'User.backends.JWTAuthentication',
+    ),
+}
+
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
@@ -169,8 +177,8 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-ACCOUNT_SIGNUP_REDIRECT_URL = "profile-set"
-LOGIN_REDIRECT_URL = "index"
+ACCOUNT_SIGNUP_REDIRECT_URL = "login"
+LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_AUTHENTICATED_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

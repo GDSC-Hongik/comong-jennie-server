@@ -1,3 +1,4 @@
+'''
 from typing import Any
 from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
@@ -27,12 +28,12 @@ class ProfileView(DetailView):
     pk_url_kwarg = "user_id"
     context_object_name = "profile_user"
 
-    '''
+    
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         context["user_tier"] = self.get_object().tier  # 티어 정보를 컨텍스트에 추가
         return context
-    '''
+    
 
 # 프로필 설정 -> UpdateView 상속
 class ProfileSetView(LoginRequiredMixin,UpdateView):
@@ -62,3 +63,77 @@ class ProfileUpdateView(LoginRequiredMixin,UpdateView):
 class CustomPasswordChangeView(LoginRequiredMixin,PasswordChangeView):
     def get_success_url(self):
         return reverse("profile",kwargs={'user_id':self.request.user.id})
+'''
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.generics import RetrieveUpdateAPIView
+
+from .serializers import RegistrationSerializer,LoginSerializer,UserSerializer
+from .renderers import UserJSONRenderer
+
+# 회원가입
+class RegistrationAPIview(APIView):
+    permission_classes = (AllowAny,) # 회원가입은 누구나 가능
+    serializer_class = RegistrationSerializer
+    renderer_classes = (UserJSONRenderer,)
+
+    def post(self,request):
+        user = request.data
+        serializer = self.serializer_class(data=user)
+
+        serializer.is_valid(raise_exception=True) # 유효성 검사 
+        serializer.save() # db에 저장
+        
+        return Response({
+            'user': serializer.data,
+            'message': '회원가입이 완료되었습니다.',
+            'next': "login"  # 회원가입 후 로그인 페이지로 이동
+        }, status=status.HTTP_201_CREATED)
+
+# 로그인
+class LoginAPIview(APIView):
+    permission_classes = (AllowAny,) # 로그인도 누구나 가능
+    serializer_class = LoginSerializer
+    renderer_classes = (UserJSONRenderer,)
+
+    def post(self,request):
+        user = request.data
+        serializer = self.serializer_class(data=user)
+
+        serializer.is_valid(raise_exception=True) # 유효성 검사
+           
+        return Response({
+            'user': serializer.data,
+            'message': '로그인이 완료되었습니다.',
+            'next': "profile"  # 로그인 후 프로필 수정 페이지로 이동
+        }, status=status.HTTP_200_OK)
+
+# 프로필 수정
+class UserRetrieveUpdateAPIview(RetrieveUpdateAPIView):
+    permission_classes = (IsAuthenticated,) # 인증된 사용자(=로그인한 사용자)만 접근
+    serializer_class = UserSerializer
+    renderer_classes = (UserJSONRenderer,)
+
+    def get(self,request,*args,**kwargs):
+        serializer = self.serializer_class(request.user)
+        return Response(serializer.data,status.HTTP_200_OK) # 유효성 검사 X, db에 저장 X / 단순히 user객체를 client에게 보내줌
+
+    # 부분 업데이트(partial=True로 설정)
+    def patch(self,request,*args,**kwargs):
+        serializer_data = request.data
+        serializer = self.serializer_class(
+            request.user,data=serializer_data,partial=True
+        )   # 업데이트 : serializer_data(수정된 사항/validated_data)을 request.user(요청한 사용자 정보/instance)에 넣음
+        
+        serializer.is_valid(raise_exception=True) # 유효성 검사 
+        serializer.save() # db에 저장
+        
+        return Response({
+            'user': serializer.data,
+            'message': '프로필 수정이 완료되었습니다.',
+            'next': "home"  # 프로필 수정 후 로그인 페이지로 이동
+        }, status=status.HTTP_200_OK)
+        
+

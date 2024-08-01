@@ -1,3 +1,4 @@
+'''
 from django.urls import reverse
 from django.shortcuts import redirect
 
@@ -20,3 +21,4 @@ class ProfileSetupMiddleware:
         # the view is called.
 
         return response
+'''
