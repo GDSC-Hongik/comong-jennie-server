@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User,Resume
 from django.contrib.auth import authenticate
 from django.utils import timezone
 
@@ -24,7 +24,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = [
             'email', 
             'username',
-            'phone_number',
+            # 'phone_number',
             'password',
             'token'
         ]
@@ -115,3 +115,11 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+# 이력서
+class ResumeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resume
+        fields = ['id', 'user', 'project', 'contest', 'etc', 'link','skill','appeal']
+        extra_kwargs = {
+            'user': {'read_only': True},
+        }
