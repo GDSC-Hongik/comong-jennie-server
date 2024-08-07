@@ -37,6 +37,6 @@ class JoinpostlistSerializer(serializers.ModelSerializer):
 
 class JoinpostdetailSerializer(serializers.ModelSerializer):
     class Meta :
-        models = Join_post
+        model = Join_post
         fields = '__all__'
         
