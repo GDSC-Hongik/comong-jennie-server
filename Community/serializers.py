@@ -1,40 +1,42 @@
 from rest_framework import serializers
-from .models import Post
+from .models import Notice ,Sub_post,Join_post
 
-# class PostlistSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Post
-#         fields = ['title']
-        
-class PostdetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Post
-        fields = '__all__'
-      
+# 전공 게시판
 class GradePostlistSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Post
+        model = Sub_post
         fields = ['title','id','sub','profs','dt_created']
         
 class SubPostlistSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Post
+        model = Sub_post
         fields = ['title','id','profs','dt_created']
         
 class ProfsPostlistSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Post
+        model = Sub_post
         fields = ['title','id','dt_created']
         
-# class BoardSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Board
-#         fields = ['grade']
-# class Subserializer(serializers.ModelSerializer):
-#     class Meta :
-#         model = Board
-#         fields = ['sub']
-# class Profserializer(serializers.ModelSerializer):
-#     class Meta :
-#         model = Board
-#         fields = ['profs']
+class PostdetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sub_post
+        fields = '__all__'
+     
+# 공지사항       
+class NoticelistSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Notice
+        fields = '__all__'
+
+# 구인게시판
+class JoinpostlistSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Join_post
+        fields = ['title','id','dt_created','participants_num','current_num']
+
+
+class JoinpostdetailSerializer(serializers.ModelSerializer):
+    class Meta :
+        models = Join_post
+        fields = '__all__'
+        
