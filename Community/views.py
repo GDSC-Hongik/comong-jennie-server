@@ -14,6 +14,26 @@ from .models import Notice ,Sub_post,Join_post
 from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer
 
 
+### 메인 화면
+
+# 컴퓨터 공학과 공지사항을 보여주며 각 게시판의 URL을 제공.
+# 즐겨찾기 추가 구현 필요
+
+@api_view(['GET'])
+def main_view(request):
+    notice = Notice.objects.all()
+    serializer = NoticelistSerializer(notice, many=True)
+    
+    return Response({'major_board' : reverse('Community:majorboard-view'),
+                     'join_board' : reverse('Community:join-post-list'),
+                     'notice' : serializer.data},
+                    status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def majorboard_view(request):
+    return Response(status=status.HTTP_200_OK )
+
 ### 전공게시판 
 
 # 학년만 필터링된 게시물 List GET.
@@ -42,7 +62,7 @@ def sub_post(request,grade,sub):
         serializer = SubPostlistSerializer(posts, many = True)
         return Response(serializer.data, status= status.HTTP_200_OK)
     
-#학년, 과목명, 교수명까지 모두 필터링된 게시물 List GET.
+# 학년, 과목명, 교수명까지 모두 필터링된 게시물 List GET.
 # 게시물 id, 제목, 생성일을 보여줌.
 # 생성 최신일 순서로 정렬함.
 
@@ -148,13 +168,9 @@ class join_post_create(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
+
     
-    
-@api_view(['GET'])
-def notice_view(request):
-    notice = Notice.objects.all()
-    serializer = NoticelistSerializer(notice, many=True)
-    return Response(serializer.data,status=status.HTTP_200_OK )
+
 
 
 

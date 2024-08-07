@@ -22,7 +22,7 @@ class Post(models.Model):
         
     def __str__(self):
         return '{0}/{1}/{2}/({4})'.format(self.title,self.author,self.dt_created, self.id)
-    
+
 class Sub_post(Post):
     grade = models.IntegerField(null=True)
     sub = models.CharField(max_length=30,null=True)
