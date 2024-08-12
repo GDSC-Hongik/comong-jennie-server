@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.filters import SearchFilter
 from django.http import HttpResponseRedirect , JsonResponse , Http404
 from django.urls import reverse
 
@@ -34,46 +36,67 @@ def main_view(request):
 def majorboard_view(request):
     return Response(status=status.HTTP_200_OK )
 
+
+
 ### 전공게시판 
 
 # 학년만 필터링된 게시물 List GET.
 # 게시물 id, 제목, 과목명, 교수명, 생성일을 보여줌.
 # 생성 최신일 순서로 정렬함.
+# 검색 기능: 제목과 내용에서 해당 내용을 포함하는지 판단함.
 
-@api_view(['GET']) 
-def grade_post(request,grade):
-    if request.method == 'GET' :
+class grade_post(ListAPIView):
+    def get_queryset(self):
+        grade = self.kwargs['grade']
         posts = Sub_post.objects.filter(grade = grade).order_by('-dt_created')
         if not posts:
             raise Http404(" Thers no data ")
-        serializer = GradePostlistSerializer(posts, many = True)
-        return Response(serializer.data, status= status.HTTP_200_OK)
+        return posts
+    
+    serializer_class = GradePostlistSerializer
+    filter_backends=[SearchFilter]
+    search_fields = ['title', 'content']
+    
+        
         
 # 학년,과목명이 필터링된 게시물 List GET.
 # 게시물 id, 제목, 교수명, 생성일을 보여줌.
 # 생성 최신일 순서로 정렬함.
+# 검색 기능: 제목과 내용에서 해당 내용을 포함하는지 판단함.
 
-@api_view(['GET']) 
-def sub_post(request,grade,sub):
-    if request.method == 'GET' :
-        posts = Sub_post.objects.filter(grade = grade, sub=sub).order_by('-dt_created')
+class sub_post(ListAPIView):
+    def get_queryset(self):
+        grade = self.kwargs['grade']
+        sub = self.kwargs['sub']
+        posts = Sub_post.objects.filter(grade = grade,sub = sub).order_by('-dt_created')
         if not posts:
             raise Http404(" Thers no data ")
-        serializer = SubPostlistSerializer(posts, many = True)
-        return Response(serializer.data, status= status.HTTP_200_OK)
+        return posts
+    
+    serializer_class = SubPostlistSerializer
+    filter_backends=[SearchFilter]
+    search_fields = ['title', 'content']
+    
     
 # 학년, 과목명, 교수명까지 모두 필터링된 게시물 List GET.
 # 게시물 id, 제목, 생성일을 보여줌.
 # 생성 최신일 순서로 정렬함.
+# 검색 기능: 제목과 내용에서 해당 내용을 포함하는지 판단함.
 
-@api_view(['GET']) 
-def prof_post(request,grade,sub,profs):
-    if request.method == 'GET' :
-        posts = Sub_post.objects.filter(grade = grade, sub=sub, profs = profs).order_by('-dt_created')
+class prof_post(ListAPIView):
+    
+    def get_queryset(self):
+        grade = self.kwargs['grade']
+        sub = self.kwargs['sub']
+        profs = self.kwargs['profs']
+        posts = Sub_post.objects.filter(grade = grade, sub = sub, profs = profs).order_by('-dt_created')
         if not posts:
             raise Http404(" Thers no data ")
-        serializer = ProfsPostlistSerializer(posts, many = True)
-        return Response(serializer.data, status= status.HTTP_200_OK)
+        return posts
+    
+    serializer_class = SubPostlistSerializer
+    filter_backends=[SearchFilter]
+    search_fields = ['title', 'content']
     
 
 # 특정 게시물을 조회,수정,삭제.
