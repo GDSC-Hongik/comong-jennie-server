@@ -33,10 +33,11 @@ class Join_post(Post):
     current_num = models.IntegerField(null=True)
 
 # class likes():
-#     pass
+#     ManytoMany w/post
 
 # class comment():
-#     pass
+#     Foreignkey w/ post
+#     Foreignkey w/ user
 
     
 class HashTag(models.Model):

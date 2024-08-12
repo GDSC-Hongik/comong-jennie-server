@@ -12,9 +12,9 @@ urlpatterns = [
     
     # 전공 게시판
     path('major/',majorboard_view, name = 'majorboard-view'),
-    path('major/<int:grade>/', grade_post, name= 'grade-post'),
-    path('major/<int:grade>/<str:sub>/',sub_post, name = 'sub-post'),
-    path('major/<int:grade>/<str:sub>/<str:profs>/',prof_post,name = 'prof-post'),
+    path('major/<int:grade>/', grade_post.as_view(), name= 'grade-post'),
+    path('major/<int:grade>/<str:sub>/',sub_post.as_view(), name = 'sub-post'),
+    path('major/<int:grade>/<str:sub>/<str:profs>/',prof_post.as_view(),name = 'prof-post'),
     path('major/<int:grade>/<str:sub>/<str:profs>/<int:post_pk>/',post_detail.as_view(), name = 'post-detail'),
     path('major/<int:grade>/<str:sub>/<str:profs>/create/', post_create.as_view() , name = 'post-create'),
     
