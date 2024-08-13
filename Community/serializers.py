@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notice ,Sub_post,Join_post
+from .models import Notice ,Sub_post,Join_post , Scrap
 
 # 전공 게시판
 class GradePostlistSerializer(serializers.ModelSerializer):
@@ -38,5 +38,9 @@ class JoinpostlistSerializer(serializers.ModelSerializer):
 class JoinpostdetailSerializer(serializers.ModelSerializer):
     class Meta :
         model = Join_post
+        fields = '__all__'
+class ScrapSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Scrap
         fields = '__all__'
         
