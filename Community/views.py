@@ -12,22 +12,25 @@ from rest_framework.filters import SearchFilter
 from django.http import HttpResponseRedirect , JsonResponse , Http404
 from django.urls import reverse
 
-from .models import Notice ,Sub_post,Join_post
-from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer
+from .models import Notice ,Sub_post,Join_post,Scrap
+from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer , ScrapSerializer
 
 
 ### 메인 화면
 
 # 컴퓨터 공학과 공지사항을 보여주며 각 게시판의 URL을 제공.
-# 즐겨찾기 추가 구현 필요
+# 즐겨찾기 추가 구현 완료.
 
 @api_view(['GET'])
 def main_view(request):
     notice = Notice.objects.all()
     serializer = NoticelistSerializer(notice, many=True)
     
+    scraps_board = Scrap.objects.all()
+    Scrapserializers = ScrapSerializer(scraps_board,many=True)
     return Response({'major_board' : reverse('Community:majorboard-view'),
                      'join_board' : reverse('Community:join-post-list'),
+                     'Scrapped' : Scrapserializers.data,
                      'notice' : serializer.data},
                     status=status.HTTP_200_OK)
 
@@ -93,10 +96,31 @@ class prof_post(ListAPIView):
         if not posts:
             raise Http404(" Thers no data ")
         return posts
-    
-    serializer_class = SubPostlistSerializer
+    serializer_class = ProfsPostlistSerializer
     filter_backends=[SearchFilter]
     search_fields = ['title', 'content']
+    
+### 즐겨찾기
+# prof-post url뒤에 scrap을 이어 붙임.
+# 해당 URL로 Post요청시 해당 Board의 url을 Scrap모델에 저장함.
+# 중복되는 즐겨찾기 URL 있을 시 저장하지 않음 
+
+class scrap_board(APIView):
+    def get(self,request,grade,sub,profs):
+        return Response(status=status.HTTP_200_OK)
+    
+    def post (self,request,grade,sub,profs):
+        url = reverse('Community:prof-post', kwargs={'grade':grade,'sub':sub,'profs':profs})
+        try :  
+            board=Scrap.objects.get(scrap_board=url)
+        except Scrap.DoesNotExist:
+            Scrap.objects.create(scrap_board=url).save()
+        return Response({'scrapped': url},status=status.HTTP_201_CREATED)
+       
+    
+   
+    
+    
     
 
 # 특정 게시물을 조회,수정,삭제.
