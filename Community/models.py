@@ -24,7 +24,8 @@ class Post(models.Model):
 
     title = models.CharField(max_length=50)
     content = models.TextField()
-    author= models.CharField(max_length=15,null=True)     
+    author= models.CharField(max_length=15,null=True) 
+    user = models.ForeignKey(User,null=False,blank=False,on_delete=models.CASCADE)    
     tag = models.ManyToManyField(HashTag,blank=True)
     
     dt_created = models.DateTimeField(verbose_name="Date Created",auto_now_add=True)
