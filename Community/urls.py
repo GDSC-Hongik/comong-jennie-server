@@ -11,7 +11,7 @@ urlpatterns = [
     path('',main_view, name = 'main'),
     
     # 전공 게시판
-    path('major/',majorboard_view, name = 'majorboard-view'),
+    path('major/',majorboard_view.as_view(), name = 'majorboard-view'),
     path('major/<int:grade>/', grade_post.as_view(), name= 'grade-post'),
     path('major/<int:grade>/<str:sub>/',sub_post.as_view(), name = 'sub-post'),
     path('major/<int:grade>/<str:sub>/<str:profs>/',prof_post.as_view(),name = 'prof-post'),

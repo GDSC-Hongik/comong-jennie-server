@@ -14,6 +14,7 @@ from django.urls import reverse
 
 from .models import Notice ,Sub_post,Join_post,Scrap ,Comment ,likes
 from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer , ScrapSerializer, CommentSerializer , likesSerializer
+from .permissions import IsOwnerOrReadOnly
 
 
 ### 메인 화면
@@ -35,10 +36,16 @@ def main_view(request):
                     status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-def majorboard_view(request):
-    return Response(status=status.HTTP_200_OK )
-
+class majorboard_view(ListAPIView):
+    def get_queryset(self):
+        posts = Sub_post.objects.all().order_by('-dt_created')
+        if not posts:
+            raise Http404(" Thers no data ")
+        return posts
+    
+    serializer_class = GradePostlistSerializer
+    filter_backends=[SearchFilter]
+    search_fields = ['title', 'content']
 
 
 ### 전공게시판 
@@ -131,10 +138,12 @@ class scrap_board(APIView):
 # 특정 게시물을 조회,수정,삭제.
 
 class post_detail(APIView): 
-    # 앞에서 전달받은 grade, sub, profs 인수를 통해 해당하는 게시물을 찾음(없다면 404)
+    permission_classes =[IsOwnerOrReadOnly]
     
+    # 앞에서 전달받은 grade, sub, profs 인수를 통해 해당하는 게시물을 찾음(없다면 404)
     def get_object(self,grade,sub,profs,post_pk):
         post = get_object_or_404(Sub_post, grade = grade, sub = sub, profs = profs, id=post_pk)
+        self.check_object_permissions(self.request,post)
         return post
     
     # 게시물 정보를 보여줌
@@ -210,6 +219,7 @@ class post_likes(APIView):
 ### 댓글 수정, 삭제 기능
 # 댓글을 작성하는 것은 post detail에서 가능.
 # PATCH 혹은 DELETE 요청시에 수정,삭제 가능
+
 class comment_detail(APIView):
     def get_object(self,post_pk,comment_pk):
         comment = get_object_or_404(Comment,sub_post=post_pk,id=comment_pk)
@@ -246,6 +256,7 @@ class post_create(APIView):
         data ['grade'] = grade
         data ['sub'] = sub
         data ['profs'] = profs
+        data ['user'] = request.user
         serializer = PostdetailSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -268,6 +279,7 @@ class join_post_detail(APIView):
     def get_object(self,post_pk):
         post = get_object_or_404(Join_post, id=post_pk)
         return post
+    
     # 게시물 정보 
     def get(self,request,post_pk):
         post = self.get_object(post_pk)
