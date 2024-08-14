@@ -152,6 +152,7 @@ class post_detail(APIView):
                          'comment':comment_serializer.data,
                          'likes' : likes_serializer.data
                          })
+        
     # 댓글 달기 기능
     def post(self,request,grade,sub,profs,post_pk):
         post = self.get_object(grade,sub,profs,post_pk)
@@ -170,7 +171,8 @@ class post_detail(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)    
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)  
+      
     # 게시물 삭제 
     def delete(self,request,grade,sub,profs,post_pk):
         post = self.get_object(grade,sub,profs,post_pk)
@@ -215,7 +217,7 @@ class comment_detail(APIView):
     
     def get(self,request,grade,sub,profs,post_pk,comment_pk):
         return Response(status=status.HTTP_200_OK)
-    
+
     def patch(self,request,grade,sub,profs,post_pk,comment_pk):
         comment = self.get_object(post_pk,comment_pk)
         serializer = CommentSerializer(comment,data = request.data,partial=True)
@@ -259,7 +261,9 @@ def join_post_list(request):
         posts = Join_post.objects.all().order_by('-dt_created')
         serializers = JoinpostlistSerializer(posts, many=True)
         return Response(serializers.data,status= status.HTTP_200_OK)
-    
+
+### 구인 게시판 CRUD
+
 class join_post_detail(APIView):
     def get_object(self,post_pk):
         post = get_object_or_404(Join_post, id=post_pk)
@@ -284,11 +288,35 @@ class join_post_detail(APIView):
         post = self.get_object(post_pk)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+# 구인 게시판 구인 인원 숫자 증가  view 
+# 구인 인원보다 승낙 인원이 크면 숫자가 더이상 커지지 않음 
 
+class join_post_update(APIView):
+    def get_object(self,post_pk):
+        post = get_object_or_404(Join_post, id=post_pk)
+        return post
+    
+    def post(self,request,post_pk):
+        post = self.get_object(post_pk)
+        post.current_num+=1
+        if post.current_num > post.participants_num:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        post.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
+    def patch(self,request,post_pk):
+        post = self.get_object(post_pk)
+        post.current_num-=1
+        if post.current_num<0:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        post.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
+    
+    
 class join_post_create(APIView):
+    # 아무 기능 없음
     def get(self,request):
         return Response(status= status.HTTP_200_OK)
+    # 구인 게시물 만들기
     def post(self,request):
         data = request.data
         serializer = JoinpostdetailSerializer(data=data)
