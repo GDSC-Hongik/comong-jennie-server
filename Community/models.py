@@ -35,6 +35,7 @@ class Post(models.Model):
         
     def __str__(self):
         return '{0}/{1}/{2}'.format(self.title,self.author,self.dt_created)
+    
 
 class Sub_post(Post):
     grade = models.IntegerField(null=True)
@@ -44,16 +45,21 @@ class Sub_post(Post):
 class Join_post(Post):
     participants_num = models.IntegerField(null=True)
     current_num = models.IntegerField(null=True)
-
-# class likes():
-#     ManytoMany w/post
-
-# class comment():
-#     Foreignkey w/ post
-#     Foreignkey w/ user
-
     
+class Comment(models.Model):
+    id = models.AutoField(primary_key=True,null=False,blank=False)
+    sub_post = models.ForeignKey(Sub_post,null=False,blank=False,on_delete=models.CASCADE) # Post의 id와 Comment의 post는 동일값을 가짐
+    user = models.ForeignKey(User,null=False,blank=False,on_delete=models.CASCADE)
+    created_at = models.DateField(auto_now_add=True,null=False,blank=False)
+    comment = models.TextField()
 
+    def __str__(self):
+        return self.comment
+
+class likes(models.Model):
+    like = models.IntegerField(null=True,default=0)
+    sub_post = models.ForeignKey(Sub_post,null=True,blank=False,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,null=True,blank=False,on_delete=models.CASCADE)
 
 class Notice(models.Model):
     title = models.CharField(max_length=100,null=True)

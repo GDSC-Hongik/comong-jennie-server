@@ -12,8 +12,8 @@ from rest_framework.filters import SearchFilter
 from django.http import HttpResponseRedirect , JsonResponse , Http404
 from django.urls import reverse
 
-from .models import Notice ,Sub_post,Join_post,Scrap
-from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer , ScrapSerializer
+from .models import Notice ,Sub_post,Join_post,Scrap ,Comment ,likes
+from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer , ScrapSerializer, CommentSerializer , likesSerializer
 
 
 ### 메인 화면
@@ -116,8 +116,13 @@ class scrap_board(APIView):
         except Scrap.DoesNotExist:
             Scrap.objects.create(scrap_board=url).save()
         return Response({'scrapped': url},status=status.HTTP_201_CREATED)
-       
     
+    def delete(self,request,grade,sub,profs):
+        url = reverse('Community:prof-post', kwargs={'grade':grade,'sub':sub,'profs':profs})
+        board = get_object_or_404(Scrap,scrap_board=url)
+        board.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        
    
     
     
@@ -127,14 +132,37 @@ class scrap_board(APIView):
 
 class post_detail(APIView): 
     # 앞에서 전달받은 grade, sub, profs 인수를 통해 해당하는 게시물을 찾음(없다면 404)
+    
     def get_object(self,grade,sub,profs,post_pk):
         post = get_object_or_404(Sub_post, grade = grade, sub = sub, profs = profs, id=post_pk)
         return post
+    
     # 게시물 정보를 보여줌
+    # 게시물 id와 comment 모델의 sub_postid가 동일한 comment만 필터링 하여 보여줌
     def get(self,request,grade,sub,profs,post_pk):
         post = self.get_object(grade,sub,profs,post_pk)
         serializer = PostdetailSerializer(post)
-        return Response(serializer.data)
+        
+        comments = Comment.objects.filter(sub_post=post.id)
+        comment_serializer = CommentSerializer(comments,many=True)
+        
+        like = likes.objects.filter(sub_post=post.id)
+        likes_serializer = likesSerializer(like,many=True)
+        return Response({'post':serializer.data, 
+                         'comment':comment_serializer.data,
+                         'likes' : likes_serializer.data
+                         })
+    # 댓글 달기 기능
+    def post(self,request,grade,sub,profs,post_pk):
+        post = self.get_object(grade,sub,profs,post_pk)
+        data = request.data
+        data['sub_post'] = int(post.id)
+        serializer = CommentSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
     # 게시물 수정 기능
     def patch(self,request,grade,sub,profs,post_pk):
         post = self.get_object(grade,sub,profs,post_pk)
@@ -148,6 +176,59 @@ class post_detail(APIView):
         post = self.get_object(grade,sub,profs,post_pk)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+### 좋아요 기능
+# post로 요청시 좋아요 +1 증가
+# patch로 요청시 좋아요 -1 감소
+
+class post_likes(APIView):
+    def get_object(self,grade,sub,profs,post_pk):
+        post = get_object_or_404(Sub_post, grade = grade, sub = sub, profs = profs, id=post_pk)
+        return post
+    
+    # sub_post에 해당하는 좋아요가 없는 경우에는 새롭게 만듦.
+    def post(self,request,grade,sub,profs,post_pk):
+        post = self.get_object(grade,sub,profs,post_pk)
+        try : 
+            like = likes.objects.get(sub_post=post.id)
+        except likes.DoesNotExist: 
+            like = likes.objects.create(sub_post=post) #현재 유저 자동으로 작성하는 기능 추가해야함 
+        like.like+=1
+        like.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
+    
+    def patch(self,request,grade,sub,profs,post_pk):
+        post = self.get_object(grade,sub,profs,post_pk)
+        instance = likes.objects.get(sub_post=post.id)
+        instance.like-=1
+        instance.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
+        
+    
+### 댓글 수정, 삭제 기능
+# 댓글을 작성하는 것은 post detail에서 가능.
+# PATCH 혹은 DELETE 요청시에 수정,삭제 가능
+class comment_detail(APIView):
+    def get_object(self,post_pk,comment_pk):
+        comment = get_object_or_404(Comment,sub_post=post_pk,id=comment_pk)
+        return comment
+    
+    def get(self,request,grade,sub,profs,post_pk,comment_pk):
+        return Response(status=status.HTTP_200_OK)
+    
+    def patch(self,request,grade,sub,profs,post_pk,comment_pk):
+        comment = self.get_object(post_pk,comment_pk)
+        serializer = CommentSerializer(comment,data = request.data,partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self,request,grade,sub,profs,post_pk,comment_pk):
+        post = self.get_object(post_pk,comment_pk)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
     
 # 게시물을 생성하려면 grade,sub,profs를 Front에서 전달받음.
 # 'major/<int:grade>/<str:sub>/<str:profs>/create/'로 연결. 
@@ -167,7 +248,6 @@ class post_create(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
-            # return HttpResponseRedirect(reverse('Community:post-list', kwargs={'board_pk': board_pk } ))
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -189,6 +269,7 @@ class join_post_detail(APIView):
         post = self.get_object(post_pk)
         serializer = JoinpostdetailSerializer(post)
         return Response(serializer.data)
+    
     # 게시물 수정 기능
     def patch(self,request,post_pk):
         post = self.get_object(post_pk)
@@ -196,7 +277,8 @@ class join_post_detail(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)    
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)   
+     
     # 게시물 삭제 
     def delete(self,request,post_pk):
         post = self.get_object(post_pk)
