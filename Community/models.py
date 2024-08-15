@@ -56,14 +56,16 @@ class Comment(models.Model):
     comment = models.TextField()
 
     def __str__(self):
-        return self.comment
+        return self.comment 
+    
 # migration yet
 class Join_comment(models.Model):
     id = models.AutoField(primary_key=True,null=False,blank=False)
     user = models.ForeignKey(User,null=False,blank=False,on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True,null=False,blank=False)
     join_post = models.ForeignKey(Join_post,null=False,blank=False,on_delete=models.CASCADE) # Post의 id와 Comment의 post는 동일값을 가짐
-        
+    resume_id = models.URLField(null=True)
+    
 class likes(models.Model):
     like = models.IntegerField(null=True,default=0)
     sub_post = models.ForeignKey(Sub_post,null=True,blank=False,on_delete=models.CASCADE)

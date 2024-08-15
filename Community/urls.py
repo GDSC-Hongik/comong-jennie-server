@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
-from .views import post_detail,post_create,grade_post ,majorboard_view,sub_post , prof_post , main_view , join_post_list,join_post_detail,join_post_create,scrap_board,comment_detail,post_likes,join_post_update
+from .views import post_detail,post_create,grade_post ,majorboard_view,sub_post , prof_post , main_view , join_post_list,join_post_detail,join_post_create,scrap_board,comment_detail,post_likes,join_post_update,join_post_comment
 app_name = "Community"
 
 
@@ -24,7 +24,8 @@ urlpatterns = [
     # 구인 게시판
     path('join/',join_post_list, name = 'join-post-list'),
     path('join/<int:post_pk>/',join_post_detail.as_view(),name = 'join-post-detail'),
-    path('join/<int:post_pk>/update',join_post_update.as_view(),name = 'join-post-update'),
+    path('join/<int:post_pk>/comment/',join_post_comment.as_view(),name = 'join-post-comment'),
+    path('join/<int:post_pk>/update/',join_post_update.as_view(),name = 'join-post-update'),
     path('join/create/',join_post_create.as_view(),name = 'join -post-create'),
 
 ]

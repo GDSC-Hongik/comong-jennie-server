@@ -11,9 +11,11 @@ from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter
 from django.http import HttpResponseRedirect , JsonResponse , Http404
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Notice ,Sub_post,Join_post,Scrap ,Comment ,likes
-from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer , ScrapSerializer, CommentSerializer , likesSerializer
+from .models import Notice ,Sub_post,Join_post,Scrap ,Comment ,likes,Join_comment
+from User.models import User
+from .serializers import PostdetailSerializer ,GradePostlistSerializer,SubPostlistSerializer , ProfsPostlistSerializer, NoticelistSerializer , JoinpostdetailSerializer,JoinpostlistSerializer , ScrapSerializer, CommentSerializer , likesSerializer ,JoincommentSerializer
 from .permissions import IsOwnerOrReadOnly
 
 
@@ -237,8 +239,8 @@ class comment_detail(APIView):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self,request,grade,sub,profs,post_pk,comment_pk):
-        post = self.get_object(post_pk,comment_pk)
-        post.delete()
+        comment = self.get_object(post_pk,comment_pk)
+        comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     
@@ -284,7 +286,13 @@ class join_post_detail(APIView):
     def get(self,request,post_pk):
         post = self.get_object(post_pk)
         serializer = JoinpostdetailSerializer(post)
-        return Response(serializer.data)
+        
+        comments = Join_comment.objects.filter(join_post=post.id)
+        comment_serializer = JoincommentSerializer(comments,many=True)
+        
+        return Response({'post': serializer.data,
+                         'comment' : comment_serializer.data}
+                         )
     
     # 게시물 수정 기능
     def patch(self,request,post_pk):
@@ -304,8 +312,7 @@ class join_post_detail(APIView):
 
 # 구인 게시판 구인 인원 숫자 증가  view 
 # 구인 인원보다 승낙 인원이 크면 숫자가 더이상 커지지 않음 
-
-
+ 
 class join_post_update(APIView):
     def get_object(self,post_pk):
         post = get_object_or_404(Join_post, id=post_pk)
@@ -325,6 +332,38 @@ class join_post_update(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         post.save()
         return Response(status=status.HTTP_202_ACCEPTED)
+    
+class join_post_comment(APIView):
+    def get_object(self,post_pk):
+        post = get_object_or_404(Join_post, id=post_pk)
+        return post
+    
+    def get(self,request,post_pk) :
+        return Response(status=status.HTTP_200_OK)
+    
+    def post(self,request,post_pk):
+        post = self.get_object(post_pk)
+        data = request.data
+        user_pk = data['user']
+        user = User.objects.get(id=user_pk)
+        try :
+            user.resume 
+        except ObjectDoesNotExist:
+            return Response("No resume, fill out the resume first")
+            
+        data['join_post'] = int(post.id)
+        data['resume_id'] = "https://comong-jennie-server.onrender.com/users/resumes/"+ str(user.resume.id)
+        
+        serializer = JoincommentSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    
+    
+    
     
     
 class join_post_create(APIView):
