@@ -29,5 +29,5 @@ urlpatterns = [
     path('register/',RegistrationAPIview.as_view(),name="register"),
     path('login/',LoginAPIview.as_view(),name="login"),
     path('current/',UserRetrieveUpdateAPIview.as_view(),name="profile"),
-    path('<int:pk>/resumes',resume_list,name="resume"),
+    path('resumes/<int:pk>/',resume_list,name="resume"),
 ]

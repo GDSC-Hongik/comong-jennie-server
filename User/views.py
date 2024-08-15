@@ -149,7 +149,7 @@ def resume_list(request, pk):
     user = get_object_or_404(User, pk=pk)
 
     if request.method == 'GET':
-        resumes = Resume.objects.filter(user=user)
+        resumes = Resume.objects.filter(id=pk)
         serializer = ResumeSerializer(resumes, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

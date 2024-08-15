@@ -110,10 +110,14 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
         return token
     
 class Resume(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project = models.TextField()
     contest = models.TextField()
     etc = models.TextField()
     link = models.URLField()
     skill =models.TextField()
     appeal = models.TextField()
+    
+    def __str__(self):
+        return str(self.id)
