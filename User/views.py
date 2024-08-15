@@ -82,6 +82,8 @@ class RegistrationAPIview(APIView):
     permission_classes = (AllowAny,) # 회원가입은 누구나 가능
     serializer_class = RegistrationSerializer
     renderer_classes = (UserJSONRenderer,)
+    
+    
 
     def post(self,request):
         user = request.data
@@ -101,6 +103,7 @@ class LoginAPIview(APIView):
     permission_classes = (AllowAny,) # 로그인도 누구나 가능
     serializer_class = LoginSerializer
     renderer_classes = (UserJSONRenderer,)
+    
 
     def post(self,request):
         user = request.data
