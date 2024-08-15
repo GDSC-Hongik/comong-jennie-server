@@ -86,8 +86,7 @@ class sub_post(ListAPIView):
     serializer_class = SubPostlistSerializer
     filter_backends=[SearchFilter]
     search_fields = ['title', 'content']
-    
-    
+
 # 학년, 과목명, 교수명까지 모두 필터링된 게시물 List GET.
 # 게시물 id, 제목, 생성일을 보여줌.
 # 생성 최신일 순서로 정렬함.
@@ -138,12 +137,12 @@ class scrap_board(APIView):
 # 특정 게시물을 조회,수정,삭제.
 
 class post_detail(APIView): 
-    permission_classes =[IsOwnerOrReadOnly]
+    # permission_classes =[IsOwnerOrReadOnly]
     
     # 앞에서 전달받은 grade, sub, profs 인수를 통해 해당하는 게시물을 찾음(없다면 404)
     def get_object(self,grade,sub,profs,post_pk):
         post = get_object_or_404(Sub_post, grade = grade, sub = sub, profs = profs, id=post_pk)
-        self.check_object_permissions(self.request,post)
+        # self.check_object_permissions(self.request,post) # 작성자인지 확인 하는 코드 -> 일단 주석 처리 
         return post
     
     # 게시물 정보를 보여줌
@@ -200,6 +199,7 @@ class post_likes(APIView):
     # sub_post에 해당하는 좋아요가 없는 경우에는 새롭게 만듦.
     def post(self,request,grade,sub,profs,post_pk):
         post = self.get_object(grade,sub,profs,post_pk)
+        
         try : 
             like = likes.objects.get(sub_post=post.id)
         except likes.DoesNotExist: 
@@ -207,7 +207,7 @@ class post_likes(APIView):
         like.like+=1
         like.save()
         return Response(status=status.HTTP_202_ACCEPTED)
-    
+
     def patch(self,request,grade,sub,profs,post_pk):
         post = self.get_object(grade,sub,profs,post_pk)
         instance = likes.objects.get(sub_post=post.id)
@@ -256,7 +256,7 @@ class post_create(APIView):
         data ['grade'] = grade
         data ['sub'] = sub
         data ['profs'] = profs
-        data ['user'] = request.user
+        # data ['user'] = request.user 유저가 자동으로 입력됨
         serializer = PostdetailSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -300,8 +300,11 @@ class join_post_detail(APIView):
         post = self.get_object(post_pk)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # 구인 게시판 구인 인원 숫자 증가  view 
 # 구인 인원보다 승낙 인원이 크면 숫자가 더이상 커지지 않음 
+
 
 class join_post_update(APIView):
     def get_object(self,post_pk):
