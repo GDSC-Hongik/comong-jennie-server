@@ -42,6 +42,7 @@ class Sub_post(Post):
     grade = models.IntegerField(null=True)
     sub = models.CharField(max_length=30,null=True)
     profs = models.CharField(max_length=30,null=True)
+    # liked_user=models.ManyToManyField(User,null=True)
     
 class Join_post(Post):
     participants_num = models.IntegerField(null=True)
@@ -68,8 +69,8 @@ class Join_comment(models.Model):
     
 class likes(models.Model):
     like = models.IntegerField(null=True,default=0)
-    sub_post = models.ForeignKey(Sub_post,null=True,blank=False,on_delete=models.CASCADE)
-    user = models.ForeignKey(User,null=True,blank=False,on_delete=models.CASCADE)
+    sub_post = models.ForeignKey(Sub_post,null=True,blank=False,on_delete=models.CASCADE,related_name='sub_post')
+    user = models.ForeignKey(User,null=True,blank=False,on_delete=models.CASCADE,related_name='likes')
 
 class Notice(models.Model):
     title = models.CharField(max_length=100,null=True)

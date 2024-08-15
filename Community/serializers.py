@@ -32,7 +32,7 @@ class NoticelistSerializer(serializers.ModelSerializer):
 class JoinpostlistSerializer(serializers.ModelSerializer):
     class Meta :
         model = Join_post
-        fields = ['title','id','dt_created','participants_num','current_num']
+        fields = ['title','id','content','dt_created','participants_num','current_num']
 
 
 class JoinpostdetailSerializer(serializers.ModelSerializer):

@@ -45,7 +45,7 @@ class majorboard_view(ListAPIView):
             raise Http404(" Thers no data ")
         return posts
     
-    serializer_class = GradePostlistSerializer
+    serializer_class = PostdetailSerializer
     filter_backends=[SearchFilter]
     search_fields = ['title', 'content']
 
@@ -65,7 +65,7 @@ class grade_post(ListAPIView):
             raise Http404(" Thers no data ")
         return posts
     
-    serializer_class = GradePostlistSerializer
+    serializer_class = PostdetailSerializer
     filter_backends=[SearchFilter]
     search_fields = ['title', 'content']
     
@@ -85,7 +85,7 @@ class sub_post(ListAPIView):
             raise Http404(" Thers no data ")
         return posts
     
-    serializer_class = SubPostlistSerializer
+    serializer_class = PostdetailSerializer
     filter_backends=[SearchFilter]
     search_fields = ['title', 'content']
 
@@ -104,7 +104,7 @@ class prof_post(ListAPIView):
         if not posts:
             raise Http404(" Thers no data ")
         return posts
-    serializer_class = ProfsPostlistSerializer
+    serializer_class = PostdetailSerializer
     filter_backends=[SearchFilter]
     search_fields = ['title', 'content']
     
@@ -272,7 +272,7 @@ class post_create(APIView):
 def join_post_list(request):
     if request.method == 'GET' :
         posts = Join_post.objects.all().order_by('-dt_created')
-        serializers = JoinpostlistSerializer(posts, many=True)
+        serializers = JoinpostdetailSerializer(posts, many=True)
         return Response(serializers.data,status= status.HTTP_200_OK)
 
 ### 구인 게시판 CRUD
@@ -309,6 +309,20 @@ class join_post_detail(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class join_post_create(APIView):
+    # 아무 기능 없음
+    def get(self,request):
+        return Response(status= status.HTTP_200_OK)
+    # 구인 게시물 만들기
+    def post(self,request):
+        data = request.data
+        serializer = JoinpostdetailSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+    
 
 # 구인 게시판 구인 인원 숫자 증가  view 
 # 구인 인원보다 승낙 인원이 크면 숫자가 더이상 커지지 않음 
@@ -360,28 +374,31 @@ class join_post_comment(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         
+class join_post_comment_delete(APIView):
+    def get_object(self,post_pk):
+        post = get_object_or_404(Join_post, id=post_pk)
+        return post
+    
+    def get(self,request,post_pk,comment_pk):
+        return Response(status=status.HTTP_200_OK)
+    
+    def delete(self,request,post_pk,comment_pk):
+        comment = Join_comment.objects.get(id=comment_pk)
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    
+
+    
+class liked_post(APIView):
+    pass
+#     def get(self, request,user_pk):
+#         post = Sub_post.objects.filter(liked_user=user_pk)
+#         serializer =  GradePostlistSerializer(post,many=True)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
         
-    
-    
-    
-    
-    
-class join_post_create(APIView):
-    # 아무 기능 없음
-    def get(self,request):
-        return Response(status= status.HTTP_200_OK)
-    # 구인 게시물 만들기
-    def post(self,request):
-        data = request.data
-        serializer = JoinpostdetailSerializer(data=data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    
-
-    
-
+        
+        
 
 
 
