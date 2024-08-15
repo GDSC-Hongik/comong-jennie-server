@@ -5,17 +5,17 @@ from .models import Notice ,Sub_post,Join_post , Scrap , Comment , likes
 class GradePostlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sub_post
-        fields = ['title','id','content','sub','profs','dt_created']
+        fields = ['title','user','id','content','sub','profs','dt_created']
         
 class SubPostlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sub_post
-        fields = ['title','id','content','profs','dt_created']
+        fields = ['title','user','id','content','profs','dt_created']
         
 class ProfsPostlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sub_post
-        fields = ['title','id','content','dt_created']
+        fields = ['title','user','id','content','dt_created']
         
 class PostdetailSerializer(serializers.ModelSerializer):
     class Meta:
