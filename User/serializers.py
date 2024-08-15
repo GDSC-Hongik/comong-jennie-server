@@ -38,6 +38,7 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255,read_only=True) # 반환값으로만 사용, 입력받지 X
     password = serializers.CharField(max_length=128,write_only=True) # 입력만 받음, 반환값으로 출력 X
     last_login = serializers.CharField(max_length=255,read_only=True) # 반환값으로만 사용, 입력받지 X
+    token = serializers.CharField(max_length=255,read_only=True) # 반환값으로만 사용, 입력받지 X
 
     # validate 메소드 : 현재 LoginSerializer의 instance가 유효한지 확인
     # user가 로그인 시도 -> validate ->  로그인 성공 여부 반환 
@@ -77,6 +78,8 @@ class LoginSerializer(serializers.Serializer):
         return{
             'email':user.email,
             'username':user.username,
+            #'token':User.objects.get(id=user.id).token,
+            'token':user.token,
             'last_login':user.last_login
         }
     
