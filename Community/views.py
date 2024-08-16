@@ -153,7 +153,7 @@ class post_detail(APIView):
         post = self.get_object(grade,sub,profs,post_pk)
         serializer = PostdetailSerializer(post)
         
-        comments = Comment.objects.filter(sub_post=post.id)
+        comments = Comment.objects.filter(sub_post=post.id).order_by('-created_at')
         comment_serializer = CommentSerializer(comments,many=True)
         
         like = likes.objects.filter(sub_post=post.id)
@@ -287,7 +287,7 @@ class join_post_detail(APIView):
         post = self.get_object(post_pk)
         serializer = JoinpostdetailSerializer(post)
         
-        comments = Join_comment.objects.filter(join_post=post.id)
+        comments = Join_comment.objects.filter(join_post=post.id).order_by('-created_at')
         comment_serializer = JoincommentSerializer(comments,many=True)
         
         return Response({'post': serializer.data,
